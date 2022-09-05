@@ -117,15 +117,17 @@ var VueReactivity = (() => {
   // packages/reactivity/src/baseHandler.ts
   var mutableHandlers = {
     get(target, key, receiver) {
-      console.log("proxy get ", key, target[key]);
       if (key === "__V__isReactive" /* IS_REACTIVE */) {
         return true;
       }
       track(target, "get", key);
-      return Reflect.get(target, key, receiver);
+      let reslult = Reflect.get(target, key, receiver);
+      if (isObject(reslult)) {
+        return reactive(reslult);
+      }
+      return reslult;
     },
     set(target, key, value, receiver) {
-      console.log("proxy set", key, value);
       let oldValue = target[key];
       let result = Reflect.set(target, key, value, receiver);
       if (oldValue != value) {

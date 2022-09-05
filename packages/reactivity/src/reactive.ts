@@ -17,7 +17,7 @@ export function reactive(target:any){
     return target
   }
 
-  let proxy = new Proxy(target, mutableHandlers)
+  let proxy:any = new Proxy(target, mutableHandlers)
   reactiveMap.set(target, proxy)
 
   return proxy
