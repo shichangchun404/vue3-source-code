@@ -15,15 +15,33 @@
   const { effect, reactive} = VueReactivity
   const data = {flag:true,name:'scc',age:30,addr: {city: "aq"}}
   const state = reactive(data)
-  effect(()=>{
+  let runner = effect(()=>{
     console.log('effect update ....', state)
     document.getElementById('app').innerHTML = state.flag ? `我叫${state.name}`: `今年${state.age}岁了`
+  }, {
+    scheduler(){
+      console.log('scheduler ...')
+      document.getElementById('app').innerHTML = `hi ${state.name}`
+    }
   })
+
+  // setTimeout(()=>{
+  //   state.flag = false
+  //   setTimeout(()=>{
+  //     state.name = '春春春'
+  //   },3000)
+  // },3000)
+
+  // runner.effect.stop()
+  // setTimeout(()=>{
+  //   state.name = '春春春'
+  //   setTimeout(()=>{
+  //     runner()
+  //   },1000)
+  // },1000)
+
   setTimeout(()=>{
-    state.flag = false
-    setTimeout(()=>{
-      state.name = '春春春'
-    },3000)
-  },3000)
+    state.name = '春春春'
+  },1000)
 </script>
 </html>

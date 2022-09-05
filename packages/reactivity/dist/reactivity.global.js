@@ -31,8 +31,9 @@ var VueReactivity = (() => {
   // packages/reactivity/src/effect.ts
   var activeEffect = null;
   var ReactiveEffect = class {
-    constructor(fn) {
+    constructor(fn, scheduler) {
       this.fn = fn;
+      this.scheduler = scheduler;
       this.parent = null;
       this.active = true;
       this.deps = [];
@@ -50,10 +51,19 @@ var VueReactivity = (() => {
         activeEffect = this.parent;
       }
     }
+    stop() {
+      if (this.active) {
+        this.active = false;
+        clearupEffect(this);
+      }
+    }
   };
-  function effect(fn) {
-    const _effect = new ReactiveEffect(fn);
+  function effect(fn, options = {}) {
+    const _effect = new ReactiveEffect(fn, options.scheduler);
     _effect.run();
+    let runner = _effect.run.bind(_effect);
+    runner.effect = _effect;
+    return runner;
   }
   var taregtMap = /* @__PURE__ */ new WeakMap();
   function track(taregt, type, key) {
@@ -84,7 +94,11 @@ var VueReactivity = (() => {
     effects.forEach((effect2) => {
       if (effect2 === activeEffect)
         return;
-      effect2.run();
+      if (effect2.scheduler) {
+        effect2.scheduler();
+      } else {
+        effect2.run();
+      }
     });
   }
   function clearupEffect(effect2) {

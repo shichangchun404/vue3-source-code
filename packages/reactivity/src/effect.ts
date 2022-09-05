@@ -1,7 +1,12 @@
 
 interface EffectImpl{
-  deps: Array<any>;
+  fn: Function
+  scheduler: any // 用户自定义调度函数
+  parent: any
+  active: any
+  deps: Array<any>
   run: () => void
+  stop: () => void
 }
 
 
@@ -11,7 +16,7 @@ class ReactiveEffect implements EffectImpl{
   public parent = null
   public active = true
   public deps = [] // 记录对应的dep name:Set age;Set
-  constructor(public fn: any) { // 类似this.fn = fn
+  constructor(public fn: any, public scheduler:any) { // 类似this.fn = fn
 
   }
   run() {
@@ -30,13 +35,23 @@ class ReactiveEffect implements EffectImpl{
       activeEffect = this.parent
     }
   }
+  stop(){
+    if (this.active) {
+      this.active = false
+      clearupEffect(this)
+    }
+  }
 }
 
-export function effect(fn: any) {
+export function effect(fn: any, options:any = {}) {
   // fn可以根据状态变化 重新执行 创建响应式effect
-  const _effect = new ReactiveEffect(fn)
+  const _effect = new ReactiveEffect(fn, options.scheduler)
   // 默认执行一次
   _effect.run()
+
+  let runner: any = _effect.run.bind(_effect)
+  runner.effect = _effect
+  return runner
 }
 
 const taregtMap = new WeakMap() //属性记录effect 对象的某个属性 存在多个effect >>>> {对象：{name: Set, age: Set}}
@@ -68,11 +83,16 @@ export function trigger(target:any, type:string, key:string, value:any, oldValue
   effects = new Set(effects)
   effects.forEach((effect: EffectImpl)=> {
     if(effect === activeEffect) return // 避免重复调用（在effect中更新依赖的属性） 进入死循环
-    effect.run()
+    if(effect.scheduler){ //用户如果传入了调度函数 执行调度函数
+      effect.scheduler()
+    }else{ // 否则默认执行视图刷新
+      effect.run()
+    }
   });
 
 }
 
+// 清楚上次执行收集的依赖 避免无关的依赖触发更新
 function clearupEffect(effect: EffectImpl){
   let { deps } = effect
   deps.forEach(item => {
@@ -81,4 +101,3 @@ function clearupEffect(effect: EffectImpl){
   effect.deps.length = 0
   // console.log('effect.deps ', deps)
 }
-
