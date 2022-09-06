@@ -14,7 +14,7 @@ export const mutableHandlers = {
     }
     track(target, 'get', key)
     let reslult = Reflect.get(target, key, receiver) // 为了使target内部的this指向receiver 也就是proxy自己
-    if(isObject(reslult)){ // 如果是对象 进行深度代理
+    if(isObject(reslult)){ // 取值时 如果是对象 进行深度代理 性能好
       return reactive(reslult)
     }
     return reslult

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>计算属性</title>
   <!-- <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
   <script src="./reactivity.global.js"></script>
 </head>
@@ -12,36 +12,24 @@
   <div id="app"></div>
 </body>
 <script>
-  const { effect, reactive} = VueReactivity
-  const data = {flag:true,name:'scc',age:30,addr: {city: "aq"}}
+  const { effect, reactive, computed} = VueReactivity
+  const data = {firstname:'shi', lastname:'changchun'}
   const state = reactive(data)
-  let runner = effect(()=>{
-    console.log('effect update ....', state.addr)
-    document.getElementById('app').innerHTML = state.flag ? `我叫${state.name}`: `今年${state.age}岁了`
-  }, {
-    scheduler(){
-      console.log('scheduler ...')
-      document.getElementById('app').innerHTML = `hi ${state.name}`
+  const fullname = computed({
+    get(){
+      console.log('computed get')
+      return state.firstname + ' ' + state.lastname
+    },
+    set(){
+      console.log('computed set')
     }
   })
-
-  // setTimeout(()=>{
-  //   state.flag = false
-  //   setTimeout(()=>{
-  //     state.name = '春春春'
-  //   },3000)
-  // },3000)
-
-  // runner.effect.stop()
-  // setTimeout(()=>{
-  //   state.name = '春春春'
-  //   setTimeout(()=>{
-  //     runner()
-  //   },1000)
-  // },1000)
+  let runner = effect(()=>{
+    document.getElementById('app').innerHTML = `我叫${fullname.value}`
+  })
 
   setTimeout(()=>{
-    state.name = '春春春'
-  },1000)
+    state.lastname = '春春春'
+  },3000)
 </script>
 </html>

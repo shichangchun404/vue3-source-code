@@ -1,7 +1,7 @@
 
 interface EffectImpl{
   fn: Function
-  scheduler: any // 用户自定义调度函数
+  scheduler: any // 用户自定义的调度器
   parent: any
   active: any
   deps: Array<any>
@@ -9,10 +9,8 @@ interface EffectImpl{
   stop: () => void
 }
 
-
-
 export let activeEffect: any = null //当前的effect对象
-class ReactiveEffect implements EffectImpl{
+export class ReactiveEffect implements EffectImpl{
   public parent = null
   public active = true
   public deps = [] // 记录对应的dep name:Set age;Set
@@ -67,6 +65,11 @@ export function track(taregt:object, type:string, key:string) {
     dep = new Set()
     depsMap.set(key, dep)
   }
+  trackEffects(dep)
+}
+
+export function trackEffects(dep:any){
+  if(!activeEffect) return
   let shouldTrack = !dep.has(activeEffect) // deps中可有已收集的ffect
   if(shouldTrack){
     dep.add(activeEffect)
@@ -80,6 +83,13 @@ export function trigger(target:any, type:string, key:string, value:any, oldValue
   if(!depsMap) return // 触发更新的值 不在effect（模板）中
   let effects = depsMap.get(key)
   // 将effects拷贝一份 不用关联引用
+  if(effects){
+    triggerEffects(effects)
+  }
+  
+}
+
+export function triggerEffects(effects:any){
   effects = new Set(effects)
   effects.forEach((effect: EffectImpl)=> {
     if(effect === activeEffect) return // 避免重复调用（在effect中更新依赖的属性） 进入死循环
@@ -89,7 +99,6 @@ export function trigger(target:any, type:string, key:string, value:any, oldValue
       effect.run()
     }
   });
-
 }
 
 // 清楚上次执行收集的依赖 避免无关的依赖触发更新
