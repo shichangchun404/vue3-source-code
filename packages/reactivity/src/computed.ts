@@ -6,6 +6,7 @@ class ComputedRefImpl{
   public dep = new Set
   public _value:any
   public _dirty = true
+  public _v_isRef = true
   constructor(getter:any, public setter:any){
     this.effect = new ReactiveEffect(getter,()=>{
       console.log('计算属性依赖的属性发生变化 ',this._dirty)

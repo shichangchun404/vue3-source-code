@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>watch</title>
+  <title>ref</title>
   <!-- <script src="../../../node_modules/vue/dist/vue.global.js"></script> -->
   <!-- <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
   <script src="./reactivity.global.js"></script>
@@ -13,29 +13,28 @@
   <div id="app"></div>
 </body>
 <script>
-  const { effect, reactive, watch} =  VueReactivity
-  var data = {firstname:'shi', lastname:'changchun'}
-  data.data = data
-  const state = reactive(data)
+  const { effect, ref } =  VueReactivity
+  let arr = ref([1,2,3])
+  console.log(arr)
+  console.log(arr.value)
 
-  // 监听整个对象 性能不好 会递归遍历每个属性
-  watch(state,(newValue,oldValue,onCleanup)=>{
-    console.log(newValue,oldValue)
-    onCleanup(()=>{
-      console.log('上一次执行')
-    })
+  let obj = ref({a:1,b:2})
+  console.log(obj)
+  console.log(obj.value)
+  let flag = ref(false)
+  effect(()=>{
+    app.innerHTML = flag.value ? '好 '+obj.value.a : '坏 '+obj.value.b
   })
 
-  // 监听某个属性 推荐
-  // watch(()=> state.lastname,(newValue,oldValue)=>{
-  //   console.log(newValue,oldValue)
-  // })
+  setTimeout(()=>{
+    flag.value = !flag.value
+  },1000)
 
   setTimeout(()=>{
-    state.lastname = '春春春'
-  },1000)
-  setTimeout(()=>{
-    state.lastname = 'qiqiq'
+    obj.value.a = '222'
   },2000)
+
+  
+
 </script>
 </html>
