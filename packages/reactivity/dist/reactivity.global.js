@@ -233,6 +233,9 @@ var VueReactivity = (() => {
       cleanup = fn;
     };
     const job = () => {
+      if (cleanup) {
+        cleanup();
+      }
       newValue = effect2.run();
       cb(newValue, oldValue, onCleanup);
       oldValue = newValue;

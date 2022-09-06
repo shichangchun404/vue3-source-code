@@ -19,8 +19,11 @@
   const state = reactive(data)
 
   // 监听整个对象 性能不好 会递归遍历每个属性
-  watch(state,(newValue,oldValue)=>{
+  watch(state,(newValue,oldValue,onCleanup)=>{
     console.log(newValue,oldValue)
+    onCleanup(()=>{
+      console.log('上一次执行')
+    })
   })
 
   // 监听某个属性 推荐
@@ -28,11 +31,11 @@
   //   console.log(newValue,oldValue)
   // })
 
-  // setTimeout(()=>{
-  //   state.lastname = '春春春'
-  // },1000)
-  // setTimeout(()=>{
-  //   state.lastname = 'qiqiq'
-  // },2000)
+  setTimeout(()=>{
+    state.lastname = '春春春'
+  },1000)
+  setTimeout(()=>{
+    state.lastname = 'qiqiq'
+  },2000)
 </script>
 </html>

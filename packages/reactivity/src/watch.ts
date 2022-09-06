@@ -12,18 +12,17 @@ export function watch(options:any,cb:Function){
   }else if(isReactive(options)){
     getter = () => traversal(options)
   }
-  
   const onCleanup = (fn:Function)=>{
     cleanup = fn
   }
-
   const job = ()=>{
+    if(cleanup){
+      cleanup()
+    }
     newValue = effect.run()
     cb(newValue, oldValue, onCleanup)
     oldValue = newValue
   }
-
-
   const effect = new ReactiveEffect(getter,job)
   oldValue = effect.run()
 
