@@ -25,11 +25,13 @@ var VueReactivity = (() => {
     activeEffect: () => activeEffect,
     computed: () => computed,
     effect: () => effect,
+    isReactive: () => isReactive,
     reactive: () => reactive,
     track: () => track,
     trackEffects: () => trackEffects,
     trigger: () => trigger,
-    triggerEffects: () => triggerEffects
+    triggerEffects: () => triggerEffects,
+    watch: () => watch
   });
 
   // packages/reactivity/src/effect.ts
@@ -170,6 +172,9 @@ var VueReactivity = (() => {
     reactiveMap.set(target, proxy);
     return proxy;
   }
+  function isReactive(value) {
+    return value && value["__V__isReactive" /* IS_REACTIVE */];
+  }
 
   // packages/reactivity/src/computed.ts
   var ComputedRefImpl = class {
@@ -211,6 +216,42 @@ var VueReactivity = (() => {
       setter = getterOrOptions.set;
     }
     return new ComputedRefImpl(getter, setter);
+  }
+
+  // packages/reactivity/src/watch.ts
+  function watch(options, cb) {
+    let getter;
+    let newValue;
+    let oldValue;
+    let cleanup;
+    if (isFunction(options)) {
+      getter = options;
+    } else if (isReactive(options)) {
+      getter = () => traversal(options);
+    }
+    const onCleanup = (fn) => {
+      cleanup = fn;
+    };
+    const job = () => {
+      newValue = effect2.run();
+      cb(newValue, oldValue, onCleanup);
+      oldValue = newValue;
+    };
+    const effect2 = new ReactiveEffect(getter, job);
+    oldValue = effect2.run();
+  }
+  function traversal(value, sets = /* @__PURE__ */ new Set()) {
+    if (!isObject(value))
+      return value;
+    if (sets.has(value)) {
+      console.log("\u5BF9\u8C61\u5982\u679C\u5DF2\u7ECF\u9012\u5F52\u8FC7\u4E86 \u76F4\u63A5\u9000\u51FA");
+      return value;
+    }
+    sets.add(value);
+    for (let key in value) {
+      traversal(value[key], sets);
+    }
+    return value;
   }
   return __toCommonJS(src_exports);
 })();

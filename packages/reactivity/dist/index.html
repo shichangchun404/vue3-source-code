@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>计算属性</title>
+  <title>watch</title>
+  <!-- <script src="../../../node_modules/vue/dist/vue.global.js"></script> -->
   <!-- <script src="../../../node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
   <script src="./reactivity.global.js"></script>
 </head>
@@ -12,24 +13,26 @@
   <div id="app"></div>
 </body>
 <script>
-  const { effect, reactive, computed} = VueReactivity
-  const data = {firstname:'shi', lastname:'changchun'}
+  const { effect, reactive, watch} =  VueReactivity
+  var data = {firstname:'shi', lastname:'changchun'}
+  data.data = data
   const state = reactive(data)
-  const fullname = computed({
-    get(){
-      console.log('computed get')
-      return state.firstname + ' ' + state.lastname
-    },
-    set(){
-      console.log('computed set')
-    }
-  })
-  let runner = effect(()=>{
-    document.getElementById('app').innerHTML = `我叫${fullname.value}`
+
+  // 监听整个对象 性能不好 会递归遍历每个属性
+  watch(state,(newValue,oldValue)=>{
+    console.log(newValue,oldValue)
   })
 
-  setTimeout(()=>{
-    state.lastname = '春春春'
-  },3000)
+  // 监听某个属性 推荐
+  // watch(()=> state.lastname,(newValue,oldValue)=>{
+  //   console.log(newValue,oldValue)
+  // })
+
+  // setTimeout(()=>{
+  //   state.lastname = '春春春'
+  // },1000)
+  // setTimeout(()=>{
+  //   state.lastname = 'qiqiq'
+  // },2000)
 </script>
 </html>

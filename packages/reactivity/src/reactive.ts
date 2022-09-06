@@ -22,3 +22,7 @@ export function reactive(target:any){
 
   return proxy
 }
+
+export function isReactive(value:any){
+  return value && value[ReactiveFlags.IS_REACTIVE]
+}

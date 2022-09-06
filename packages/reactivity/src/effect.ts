@@ -14,7 +14,7 @@ export class ReactiveEffect implements EffectImpl{
   public parent = null
   public active = true
   public deps = [] // 记录对应的dep name:Set age;Set
-  constructor(public fn: any, public scheduler:any) { // 类似this.fn = fn
+  constructor(public fn: Function, public scheduler:any) { // 类似this.fn = fn
 
   }
   run() {
