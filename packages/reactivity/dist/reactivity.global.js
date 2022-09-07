@@ -25,6 +25,8 @@ var VueReactivity = (() => {
     effect: () => effect,
     reactive: () => reactive,
     ref: () => ref,
+    toRef: () => toRef,
+    toRefs: () => toRefs,
     watch: () => watch
   });
 
@@ -125,6 +127,9 @@ var VueReactivity = (() => {
   };
   var isFunction = (val) => {
     return typeof val === "function";
+  };
+  var isArray = (val) => {
+    return Array.isArray(val);
   };
 
   // packages/reactivity/src/baseHandler.ts
@@ -260,6 +265,7 @@ var VueReactivity = (() => {
     constructor(rawValue) {
       this.rawValue = rawValue;
       this.dep = /* @__PURE__ */ new Set();
+      this._v_isRef = true;
       this._value = toReactive(rawValue);
     }
     get value() {
@@ -267,12 +273,37 @@ var VueReactivity = (() => {
       return this._value;
     }
     set value(newValue) {
-      this._value = toReactive(newValue);
-      triggerEffects(this.dep);
+      if (newValue !== this.rawValue) {
+        this._value = toReactive(newValue);
+        triggerEffects(this.dep);
+        this.rawValue = newValue;
+      }
     }
   };
   function ref(rawValue) {
     return new RefImpl(rawValue);
+  }
+  var ObjectRefImpl = class {
+    constructor(target, key) {
+      this.target = target;
+      this.key = key;
+    }
+    get value() {
+      return this.target[this.key];
+    }
+    set value(newValue) {
+      this.target[this.key] = newValue;
+    }
+  };
+  function toRefs(target) {
+    let result = isArray(target) ? new Array(target.length) : {};
+    for (let key in target) {
+      result[key] = toRef(target, key);
+    }
+    return result;
+  }
+  function toRef(target, key) {
+    return new ObjectRefImpl(target, key);
   }
   return __toCommonJS(src_exports);
 })();

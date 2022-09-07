@@ -5,3 +5,7 @@ export const isObject = (val: any) => {
 export const isFunction = (val: any) => {
   return typeof val === 'function'
 }
+
+export const isArray = (val:any) => {
+  return Array.isArray(val)
+}

@@ -11,20 +11,19 @@
 </head>
 <body>
   <div id="app"></div>
+  <div id="app2"></div>
 </body>
 <script>
-  const { effect, ref } =  VueReactivity
-  let arr = ref([1,2,3])
-  console.log(arr)
-  console.log(arr.value)
+  const { effect, ref, reactive, toRefs } =  VueReactivity
+  let arr = ref([1,2,3]) // 支持非基本类型 会自动转换proxy
+  console.log(arr) // RefImpl
+  console.log(arr.value) // Proxy
 
   let obj = ref({a:1,b:2})
   console.log(obj)
   console.log(obj.value)
   let flag = ref(false)
-  effect(()=>{
-    app.innerHTML = flag.value ? '好 '+obj.value.a : '坏 '+obj.value.b
-  })
+
 
   setTimeout(()=>{
     flag.value = !flag.value
@@ -32,9 +31,23 @@
 
   setTimeout(()=>{
     obj.value.a = '222'
+    name.value = 'ccc2'
+    data.age = 100
+    addr.num = 123456
   },2000)
 
-  
+  const data = reactive({name:'ccc',age:30, addr:{num:123}}) 
+  // let { name, age } = data // 直接解构proxy对象中的基本数据类型 会失去响应式
+  let { addr } = data // 解构proxy对象中的引用类型 响应式还在
+  console.log('========= addr ', addr)
+  let { name, age } = toRefs(data) // 通过toRefs解构后 返回一个ObjectRefImpl对象 实现了对原数据的代理
+
+  console.log('========= name ', name.value)
+
+  effect(()=>{
+    app.innerHTML = (flag.value ? '好 '+obj.value.a : '坏 '+obj.value.b) + ' name='+name.value +' age='+age.value
+    app2.innerHTML = addr.num
+  })
 
 </script>
 </html>
